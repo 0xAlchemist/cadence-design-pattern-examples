@@ -1,4 +1,4 @@
-all: deploy
+all: demo
 
 .PHONY: setup
 setup:
@@ -6,4 +6,8 @@ setup:
 
 .PHONY: deploy
 deploy: setup
-	flow project deploy
+	flow project deploy -n emulator
+
+.PHONY: demo
+demo: deploy
+	go run ./demo/main.go
