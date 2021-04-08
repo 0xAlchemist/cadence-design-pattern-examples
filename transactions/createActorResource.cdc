@@ -1,4 +1,4 @@
-import DesignPatterns from "../contracts/DesignPatterns.cdc"
+import DesignPatterns from 0x01cf0e2f2f715450
 
 transaction() {
     prepare(signer: AuthAccount) {
@@ -8,6 +8,11 @@ transaction() {
 
         // save the resource to the signer's account storage
         signer.save(<- actorResource, to: DesignPatterns.actorResourceStoragePath)
+
+        signer.link<&{DesignPatterns.AddCapability}>(
+            DesignPatterns.addCapabilityPublicPath,
+            target: DesignPatterns.actorResourceStoragePath
+        )
 
         // link the UnlockedCapability in private storage
         signer.link<&{DesignPatterns.UnlockedCapability}>(
