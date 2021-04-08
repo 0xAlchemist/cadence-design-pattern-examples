@@ -1,4 +1,4 @@
-import DesignPatterns from "../contracts/DesignPatterns"
+import DesignPatterns from 0x01cf0e2f2f715450
 
 transaction() {
     prepare(signer: AuthAccount) {
@@ -8,6 +8,6 @@ transaction() {
             (DesignPatterns.unlockedCapabilityPrivatePath)
             .borrow() ?? panic("could not borrow a reference to the UnlockedCapability interface")
 
-        actorResource.doSomethingCool()
+        log(actorResource.doSomethingCool())
     }
 }
