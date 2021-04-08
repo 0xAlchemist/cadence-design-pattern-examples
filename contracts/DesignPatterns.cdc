@@ -84,7 +84,7 @@ pub contract DesignPatterns {
     }
 
     // TODO: does this work with `flow project deploy` now?
-    init(admin: AuthAccount) {
+    init() {
 
         // Named Paths
         self.adminResourceStoragePath = /storage/AdminResource
@@ -101,7 +101,7 @@ pub contract DesignPatterns {
 
         // create and save an AdminResource to the deployer's account
         // - this is the only time this resource can be created
-        admin.save(<- create AdminResource(), to: self.adminResourceStoragePath)
+        self.account.save(<- create AdminResource(), to: self.adminResourceStoragePath)
 
         // store a link to the SpecialCapability interface in the owner's
         // private account storage
@@ -109,7 +109,7 @@ pub contract DesignPatterns {
         // - this restricts the capability so the AdminResource owner is the
         // only one that can borrow a reference to it
         //
-        admin.link<&{SpecialCapability}>(
+        self.account.link<&{SpecialCapability}>(
             self.specialCapabilityPrivatePath,
             target: self.adminResourceStoragePath
         )
