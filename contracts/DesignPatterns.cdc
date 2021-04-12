@@ -28,15 +28,8 @@ pub contract DesignPatterns {
     }
 
     // Admin Resource - Init Singleton
-    pub resource AdminResource: SpecialCapability, AddCapability {
-
-        // receiveCapability method
-        pub fun addCapability(cap: Capability<&{SpecialCapability}>) {
-            pre {
-                // we make sure the correct capability exists before executing the method
-                cap.borrow() != nil: "could not borrow a reference to the special capability"
-            }
-        }
+    pub resource AdminResource: SpecialCapability {
+        // just has the SpecialCapability
     }
 
     // Actor Resource - Capability Receiver
