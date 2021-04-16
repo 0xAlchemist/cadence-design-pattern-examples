@@ -1,7 +1,17 @@
 // A Cadence Design Pattern demonstration
-
+//
+// - Named Value Fields
+// - Capability Receiver
+// - Init Singleton
+//
 
 pub contract DesignPatterns {
+
+    // TODO: Total amount of Actor resources created
+    // - we will use this value in our ReportStruct
+
+    // TODO: Total amount of Actor resources that have
+    // received the SpecialCapability
 
     // Named Value Fields
     // - https://docs.onflow.org/cadence/design-patterns/#named-value-field
@@ -16,6 +26,14 @@ pub contract DesignPatterns {
     
     // Public Capability Paths
     pub let addCapabilityPublicPath: PublicPath
+    pub let adminPublicPath: PublicPath
+
+    // TODO: Script Accessible Report
+    // - https://docs.onflow.org/cadence/design-patterns/#script-accessible-report
+    //
+    // This allows us to create a safe and transaction free way
+    // for users to fetch data from the smart contract or it's resources
+    //
 
     // The SpecialCapability interface is
     // passed into the ActorResource by the Admin
@@ -28,6 +46,12 @@ pub contract DesignPatterns {
     pub resource interface SpecialCapability {
         // just used to enable the ActorResource
     }
+
+    // TODO: The AdminPublic interface is used
+    // to provide a capability for anyone
+    // to generate a script accessible report 
+    // from the AdminResource.
+    // 
 
     // The AddCapability interface is the public 
     // capability the Admin borrows in order to pass in the 
@@ -52,7 +76,12 @@ pub contract DesignPatterns {
 
     // Admin Resource - Init Singleton
     pub resource AdminResource: SpecialCapability {
-        // just has the SpecialCapability
+        // TODO: Returns a report struct with the values from the
+        // smart contract. You wouldn't be able to access
+        // these values without this method as they are
+        // restricted to the smart contract using 
+        // 'access(contract)'
+        //
     }
 
     // Actor Resource - Capability Receiver
@@ -75,6 +104,8 @@ pub contract DesignPatterns {
                 cap.borrow() != nil: "could not borrow a reference to the special capability"
             }
 
+            // TODO: update the enabledActors field for the smart contract
+
             // add the SpecialCapability
             self.capability = cap
         }
@@ -93,7 +124,7 @@ pub contract DesignPatterns {
             // we return this result if the SpecialCapability
             // has been added
             //
-            return "I have the special capability!!!"
+            return "I have the special capability!!"
         }
 
         init() {
@@ -110,10 +141,18 @@ pub contract DesignPatterns {
     // before any UnlockedCapability methods can be called
     //
     pub fun createActorResource(): @ActorResource {
+        
+        // TODO: increment the Actor count
+
+        // return the new Actor resource to the caller
         return <- create ActorResource()
     }
 
     init() {
+
+        // TODO: Set initial Actor count to zero
+
+        // TODO: Set initial ennabledActors count to zero
 
         // Resource Storage Paths
         self.adminResourceStoragePath = /storage/AdminResource
@@ -125,6 +164,7 @@ pub contract DesignPatterns {
 
         // Public Capability Paths
         self.addCapabilityPublicPath = /public/AddCapability
+        self.adminPublicPath = /public/AdminPublicCapability
 
         // Init Singleton Pattern
         // - https://docs.onflow.org/cadence/design-patterns/#init-singleton
@@ -147,5 +187,12 @@ pub contract DesignPatterns {
             self.specialCapabilityPrivatePath,
             target: self.adminResourceStoragePath
         )
+
+        // TODO: store a link to the AdminPublic interface in the owner's
+        // public account storage
+        //
+        // - this provides the capability that anyone can borrow a reference
+        // to and use to generate a script-accessible report
+        //
     }
 }
