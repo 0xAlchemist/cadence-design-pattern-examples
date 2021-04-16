@@ -38,7 +38,6 @@ pub contract DesignPatterns {
     // This allows us to create a safe and transaction free way
     // for users to fetch data from the smart contract or it's resources
     //
-
     pub struct ReportStruct {
 
         pub let actors: UInt64
@@ -122,7 +121,7 @@ pub contract DesignPatterns {
             pre {
                 // we make sure the SpecialCapability is 
                 // valid before executing the method
-                cap.borrow() != nil: "could not borrow a reference to the special capability"
+                cap.borrow() != nil: "could not borrow a reference to the SpecialCapability"
                 self.capability == nil: "resource already has the SpecialCapability"
             }
 
