@@ -1,17 +1,21 @@
 // A Cadence Design Pattern demonstration
+// - https://docs.onflow.org/cadence/design-patterns
 //
 // - Named Value Fields
 // - Capability Receiver
 // - Init Singleton
+// - Script Accessible Report
 //
 
 pub contract DesignPatterns {
 
-    // TODO: Total amount of Actor resources created
+    // Total amount of Actor resources created
     // - we will use this value in our ReportStruct
+    access(contract) var totalActors: UInt64
 
-    // TODO: Total amount of Actor resources that have
+    // Total amount of Actor resources that have
     // received the SpecialCapability
+    access(contract) var enabledActors: UInt64
 
     // Named Value Fields
     // - https://docs.onflow.org/cadence/design-patterns/#named-value-field
@@ -28,12 +32,23 @@ pub contract DesignPatterns {
     pub let addCapabilityPublicPath: PublicPath
     pub let adminPublicPath: PublicPath
 
-    // TODO: Script Accessible Report
+    // Script Accessible Report
     // - https://docs.onflow.org/cadence/design-patterns/#script-accessible-report
     //
     // This allows us to create a safe and transaction free way
     // for users to fetch data from the smart contract or it's resources
     //
+
+    pub struct ReportStruct {
+
+        pub let actors: UInt64
+        pub let enabled: UInt64
+
+        init(actors: UInt64, enabled: UInt64) {
+            self.actors = actors
+            self.enabled = enabled
+        }
+    }
 
     // The SpecialCapability interface is
     // passed into the ActorResource by the Admin
@@ -47,11 +62,14 @@ pub contract DesignPatterns {
         // just used to enable the ActorResource
     }
 
-    // TODO: The AdminPublic interface is used
+    // The AdminPublic interface is used
     // to provide a capability for anyone
     // to generate a script accessible report 
     // from the AdminResource.
     // 
+    pub resource interface AdminPublic {
+        pub fun generateReport(): ReportStruct
+    }
 
     // The AddCapability interface is the public 
     // capability the Admin borrows in order to pass in the 
@@ -75,13 +93,16 @@ pub contract DesignPatterns {
     }
 
     // Admin Resource - Init Singleton
-    pub resource AdminResource: SpecialCapability {
-        // TODO: Returns a report struct with the values from the
+    pub resource AdminResource: SpecialCapability, AdminPublic {
+        // Returns a report struct with the values from the
         // smart contract. You wouldn't be able to access
         // these values without this method as they are
         // restricted to the smart contract using 
         // 'access(contract)'
         //
+        pub fun generateReport(): ReportStruct {
+            return ReportStruct(actors: DesignPatterns.totalActors, enabled: DesignPatterns.enabledActors)
+        }
     }
 
     // Actor Resource - Capability Receiver
@@ -102,9 +123,11 @@ pub contract DesignPatterns {
                 // we make sure the SpecialCapability is 
                 // valid before executing the method
                 cap.borrow() != nil: "could not borrow a reference to the special capability"
+                self.capability == nil: "resource already has the SpecialCapability"
             }
 
-            // TODO: update the enabledActors field for the smart contract
+            // update the enabledActors field for the smart contract
+            DesignPatterns.enabledActors = DesignPatterns.enabledActors + 1 as UInt64
 
             // add the SpecialCapability
             self.capability = cap
@@ -142,7 +165,8 @@ pub contract DesignPatterns {
     //
     pub fun createActorResource(): @ActorResource {
         
-        // TODO: increment the Actor count
+        // increment the Actor count
+        DesignPatterns.totalActors = DesignPatterns.totalActors + 1 as UInt64
 
         // return the new Actor resource to the caller
         return <- create ActorResource()
@@ -150,9 +174,11 @@ pub contract DesignPatterns {
 
     init() {
 
-        // TODO: Set initial Actor count to zero
+        // Set initial Actor count to zero
+        self.totalActors = 0 as UInt64
 
-        // TODO: Set initial ennabledActors count to zero
+        // Set initial ennabledActors count to zero
+        self.enabledActors = 0 as UInt64
 
         // Resource Storage Paths
         self.adminResourceStoragePath = /storage/AdminResource
@@ -175,7 +201,7 @@ pub contract DesignPatterns {
 
         // create and save an AdminResource to the deployer's account
         // - this is the only time this resource can be created
-        self.account.save(<- create AdminResource(), to: self.adminResourceStoragePath)
+        self.account.save(<- create AdminResource(), to: DesignPatterns.adminResourceStoragePath)
 
         // store a link to the SpecialCapability interface in the owner's
         // private account storage
@@ -184,15 +210,19 @@ pub contract DesignPatterns {
         // only one that can borrow a reference to it
         //
         self.account.link<&{SpecialCapability}>(
-            self.specialCapabilityPrivatePath,
-            target: self.adminResourceStoragePath
+            DesignPatterns.specialCapabilityPrivatePath,
+            target: DesignPatterns.adminResourceStoragePath
         )
 
-        // TODO: store a link to the AdminPublic interface in the owner's
+        // store a link to the AdminPublic interface in the owner's
         // public account storage
         //
         // - this provides the capability that anyone can borrow a reference
         // to and use to generate a script-accessible report
         //
+        self.account.link<&{AdminPublic}>(
+            DesignPatterns.adminPublicPath,
+            target: DesignPatterns.adminResourceStoragePath
+        )
     }
 }

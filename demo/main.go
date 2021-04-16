@@ -28,9 +28,13 @@ func main() {
 	// 	SignProposeAndPayAs("actor").
 	// 	Run()
 
-	// TODO: run generateReport script to check
+	// run generateReport script to check
 	// (enabled / total) actors
 	//
+	g.
+		ScriptFromFile("generateReport").
+		AccountArgument("deployer").
+		Run()
 
 	// add capability to capability receiver with admin resource
 	// - pass in the Actor's account argument (Address)
@@ -42,9 +46,13 @@ func main() {
 		SignProposeAndPayAs("deployer").
 		Run()
 
-	// TODO: run generateReport script to check
+	// run generateReport script to check
 	// (enabled / total) actors
 	//
+	g.
+		ScriptFromFile("generateReport").
+		AccountArgument("deployer").
+		Run()
 
 	// successfully run the doSomethingCool method
 	// - sign as the Actor
@@ -53,11 +61,4 @@ func main() {
 		TransactionFromFile("doSomethingCool").
 		SignProposeAndPayAs("actor").
 		Run()
-
-	// TODO: run crashAndBurn script to
-	// demonstrate restricted smart contract
-	// fields.
-	//
-	// this will fail!
-	//
 }
